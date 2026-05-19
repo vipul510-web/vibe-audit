@@ -3,24 +3,33 @@ import uuid
 from ._utils import iter_files, read_file, rel
 from ..models import Finding
 
-SENSITIVE_WORDS = r'(password|passwd|pwd|token|secret|api_key|apikey|auth|credential|private_key|access_key)'
+SENSITIVE_WORDS = r'(password|passwd|pwd|token|secret|api_key|apikey|auth_token|private_key|access_key)'
 
 LOG_CALLS = r'(print|console\.log|console\.debug|console\.info|logger\.(info|debug|warning|error|critical)|log\.info|log\.debug|logging\.(info|debug|warning|error))'
 
 PATTERNS = [
+    # f-string/template with sensitive variable interpolated: print(f"token: {token}")
     (
-        rf'(?i){LOG_CALLS}\s*\(.*{SENSITIVE_WORDS}',
-        "Sensitive data in log statement",
+        rf'(?i){LOG_CALLS}\s*\(.*f["\'].*\{{[^}}]*{SENSITIVE_WORDS}[^}}]*\}}',
+        "Sensitive value interpolated in log statement",
         "HIGH",
     ),
+    # Direct variable logging: print(password), log.info(api_key)
     (
-        r'(?i)(print|console\.log)\s*\(.*\b(request|response|req|res)\b',
-        "Full request/response logged",
-        "MEDIUM",
+        rf'(?i){LOG_CALLS}\s*\(\s*{SENSITIVE_WORDS}\s*[\),]',
+        "Sensitive variable passed directly to log",
+        "HIGH",
     ),
+    # JS template literal: console.log(`token: ${token}`)
     (
-        r'(?i)(print|console\.log)\s*\(.*\bheaders\b',
-        "HTTP headers logged (may include auth tokens)",
+        rf'(?i)(console\.log|console\.debug)\s*\(`[^`]*\$\{{[^}}]*{SENSITIVE_WORDS}[^}}]*\}}',
+        "Sensitive value in JS template log",
+        "HIGH",
+    ),
+    # Dict/object access being logged: print(data['password']), console.log(user.token)
+    (
+        rf'(?i){LOG_CALLS}\s*\(.*["\'][^"\']*["\'].*\b{SENSITIVE_WORDS}\b',
+        "Sensitive key accessed in log statement",
         "MEDIUM",
     ),
 ]

@@ -1,7 +1,11 @@
 import os
 from pathlib import Path
 
-SKIP_DIRS = {".venv", "venv", "node_modules", ".git", "__pycache__", "dist", "build", ".next", ".nuxt"}
+SKIP_DIRS = {
+    ".venv", "venv", "node_modules", ".git", "__pycache__", "dist", "build",
+    ".next", ".nuxt", ".cursor", "mcp-venv", "site-packages", ".tox",
+    "vendor", ".yarn", ".pnp",
+}
 SKIP_FILES = {"security-report.html"}
 TEXT_EXTENSIONS = {
     ".py", ".js", ".jsx", ".ts", ".tsx", ".html", ".htm", ".vue", ".svelte",

@@ -16,9 +16,12 @@ SQL_PATTERNS = [
 
 XSS_PATTERNS = [
     (r'dangerouslySetInnerHTML\s*=\s*\{\s*\{', "React dangerouslySetInnerHTML", "HIGH"),
-    (r'\.innerHTML\s*=\s*(?!["\'`]<)', "Direct innerHTML assignment", "HIGH"),
+    # Only flag innerHTML when RHS is a variable/expression, not a string literal or empty string
+    (r'\.innerHTML\s*=\s*[a-zA-Z_$][a-zA-Z0-9_$.]*(?:\s*\+|\s*;|\s*$)', "Direct innerHTML assignment with variable", "HIGH"),
+    (r'\.innerHTML\s*=\s*`[^`]*\$\{', "Direct innerHTML assignment with template literal", "HIGH"),
     (r'document\.write\s*\(', "document.write usage", "MEDIUM"),
-    (r'\beval\s*\(', "eval() usage", "HIGH"),
+    # Only flag eval when it's a standalone call, not inside a string/comment
+    (r'(?<!["\'\w])eval\s*\([^)]+\)', "eval() with argument", "HIGH"),
     (r'(?i)render_template_string\s*\(', "Flask render_template_string", "HIGH"),
     (r'(?i)mark_safe\s*\(.*request', "Django mark_safe with request data", "HIGH"),
     (r'(?i)Markup\s*\(.*request', "Jinja2 Markup with request data", "HIGH"),
