@@ -17,8 +17,9 @@ SQL_PATTERNS = [
 XSS_PATTERNS = [
     (r'dangerouslySetInnerHTML\s*=\s*\{\s*\{', "React dangerouslySetInnerHTML", "HIGH"),
     # Only flag innerHTML when RHS is a variable/expression, not a string literal or empty string
-    (r'\.innerHTML\s*=\s*[a-zA-Z_$][a-zA-Z0-9_$.]*(?:\s*\+|\s*;|\s*$)', "Direct innerHTML assignment with variable", "HIGH"),
-    (r'\.innerHTML\s*=\s*`[^`]*\$\{', "Direct innerHTML assignment with template literal", "HIGH"),
+    (r'\.innerHTML\s*=\s*[a-zA-Z_$][a-zA-Z0-9_$.]*(?:\s*\+|\s*;|\s*$)', "Direct innerHTML assignment with variable", "MEDIUM"),
+    # Template literals: skip if the interpolated value is wrapped in a known escape function
+    (r'\.innerHTML\s*=\s*`[^`]*\$\{(?!(?:_?escape|sanitize|encode|htmlEncode|escHtml|_citEscape|escapeHtml|DOMPurify\.sanitize|textContent)\b)[^}]+\}', "Direct innerHTML assignment with template literal", "MEDIUM"),
     (r'document\.write\s*\(', "document.write usage", "MEDIUM"),
     # Only flag eval when it's a standalone call, not inside a string/comment
     (r'(?<!["\'\w])eval\s*\([^)]+\)', "eval() with argument", "HIGH"),
@@ -32,7 +33,10 @@ CMD_PATTERNS = [
     (r'(?i)(subprocess\.(run|call|Popen|check_output)|os\.system)\s*\(.*\+', "Command injection via concatenation", "CRITICAL"),
     (r'(?i)(subprocess\.(run|call|Popen|check_output)|os\.system)\s*\(\s*f["\']', "Command injection via f-string", "CRITICAL"),
     (r'(?i)shell\s*=\s*True.*\+', "subprocess shell=True with concatenation", "CRITICAL"),
-    (r'(?i)(exec|execSync|execFile)\s*\(.*\+', "Node.js exec with concatenation", "CRITICAL"),
+    # Negative lookbehind: skip regex.exec() — only flag standalone exec calls or child_process context
+    (r'(?i)child_process[^)]*exec\s*\(.*\+', "Node.js child_process.exec with concatenation", "CRITICAL"),
+    (r'(?i)(?<![.\w])execSync\s*\(.*\+', "Node.js execSync with concatenation", "CRITICAL"),
+    (r'(?i)(?<![.\w])execFile\s*\(.*\+', "Node.js execFile with concatenation", "CRITICAL"),
 ]
 
 

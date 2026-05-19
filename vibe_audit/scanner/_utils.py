@@ -28,6 +28,9 @@ def iter_files(root: str, limit: int = 500):
             fpath = Path(dirpath) / fname
             if fpath.name in SKIP_FILES:
                 continue
+            # Skip minified files — they're vendor code, not yours
+            if fpath.name.endswith(".min.js") or fpath.name.endswith(".min.css"):
+                continue
             ext = fpath.suffix.lower()
             if ext not in TEXT_EXTENSIONS and fpath.name not in {
                 "Dockerfile", ".env", ".gitignore", "Makefile", "Procfile"

@@ -44,7 +44,10 @@ def _is_allowlisted(line: str) -> bool:
 
 def scan_secrets(root: str, limit: int = 500) -> list[Finding]:
     findings = []
-    skip_files = {".env.example", ".env.sample"}
+    # .env files are supposed to contain secrets — dotenv_check.py handles the
+    # "is it committed to git?" concern separately
+    skip_files = {".env", ".env.example", ".env.sample", ".env.local",
+                  ".env.development", ".env.production", ".env.test"}
 
     for fpath in iter_files(root, limit):
         if fpath.name in skip_files or "test" in fpath.name.lower():
