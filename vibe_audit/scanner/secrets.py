@@ -29,6 +29,8 @@ ALLOWLIST_PATTERNS = [
     r'\.env\.example',
     r'example\.',
     r'your[-_]?api[-_]?key',
+    r'your[-_]?\w*[-_]?password',  # placeholder like "your-app-password"
+    r'your[-_]?\w*[-_]?secret',
     r'<your',
     r'\$\{',
     r'os\.environ',

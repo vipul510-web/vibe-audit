@@ -5,7 +5,8 @@ from ..models import Finding
 
 PATTERNS = [
     (r'(?i)(md5|sha1)\s*\(.*password', "Weak password hashing (MD5/SHA1)", "CRITICAL"),
-    (r'(?i)hashlib\.(md5|sha1)\s*\(', "Weak hashing algorithm", "HIGH"),
+    # Only flag MD5/SHA1 when near password-related context, not general slug/ID generation
+    (r'(?i)hashlib\.(md5|sha1)\s*\(.*(?:password|passwd|pwd|secret|token|credential)', "Weak hashing for sensitive data", "HIGH"),
     (r'(?i)jwt\.encode\s*\(.*["\']secret["\']', "JWT signed with literal 'secret'", "CRITICAL"),
     (r'(?i)jwt\.encode\s*\(.*["\'][a-zA-Z0-9]{1,15}["\']', "JWT signed with short/weak secret", "HIGH"),
     (r'(?i)secret_key\s*=\s*["\']django-insecure', "Django insecure default secret key", "HIGH"),

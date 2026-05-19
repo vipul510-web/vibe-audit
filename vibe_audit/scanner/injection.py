@@ -22,8 +22,8 @@ XSS_PATTERNS = [
     # Template literals: skip if all interpolated values use known escape functions
     (r'\.innerHTML\s*=\s*`[^`]*\$\{(?!(?:_?escape|sanitize|encode|htmlEncode|escHtml|_citEscape|escapeHtml|DOMPurify\.sanitize)\b)[^}]+\}', "innerHTML assigned from template literal (verify sanitization)", "INFO"),
     (r'document\.write\s*\(', "document.write usage", "MEDIUM"),
-    # Only flag eval when it's a standalone call, not inside a string/comment
-    (r'(?<!["\'\w])eval\s*\([^)]+\)', "eval() with argument", "HIGH"),
+    # Only flag eval when standalone — exclude method calls like Image.eval(), typed.eval()
+    (r'(?<!["\'\w.])eval\s*\([^)]+\)', "eval() with argument", "HIGH"),
     (r'(?i)render_template_string\s*\(', "Flask render_template_string", "HIGH"),
     (r'(?i)mark_safe\s*\(.*request', "Django mark_safe with request data", "HIGH"),
     (r'(?i)Markup\s*\(.*request', "Jinja2 Markup with request data", "HIGH"),
@@ -31,7 +31,8 @@ XSS_PATTERNS = [
 ]
 
 CMD_PATTERNS = [
-    (r'(?i)(subprocess\.(run|call|Popen|check_output)|os\.system)\s*\(.*\+', "Command injection via concatenation", "CRITICAL"),
+    # Only flag subprocess string concatenation — list concat like ["git","add"]+paths is safe
+    (r'(?i)(subprocess\.(run|call|Popen|check_output)|os\.system)\s*\(\s*["\'].*\+', "Command injection via string concatenation", "CRITICAL"),
     (r'(?i)(subprocess\.(run|call|Popen|check_output)|os\.system)\s*\(\s*f["\']', "Command injection via f-string", "CRITICAL"),
     (r'(?i)shell\s*=\s*True.*\+', "subprocess shell=True with concatenation", "CRITICAL"),
     # Negative lookbehind: skip regex.exec() — only flag standalone exec calls or child_process context
