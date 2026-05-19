@@ -56,7 +56,7 @@ def scan_secrets(root: str, limit: int = 500) -> list[Finding]:
         if not content:
             continue
         for i, line in enumerate(content.splitlines(), 1):
-            if _is_allowlisted(line):
+            if _is_allowlisted(line) or "vibe-audit-ignore" in line:
                 continue
             for pattern, label, severity in PATTERNS:
                 if re.search(pattern, line):

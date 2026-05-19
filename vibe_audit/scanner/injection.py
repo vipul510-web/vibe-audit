@@ -16,10 +16,11 @@ SQL_PATTERNS = [
 
 XSS_PATTERNS = [
     (r'dangerouslySetInnerHTML\s*=\s*\{\s*\{', "React dangerouslySetInnerHTML", "HIGH"),
-    # Only flag innerHTML when RHS is a variable/expression, not a string literal or empty string
-    (r'\.innerHTML\s*=\s*[a-zA-Z_$][a-zA-Z0-9_$.]*(?:\s*\+|\s*;|\s*$)', "Direct innerHTML assignment with variable", "MEDIUM"),
-    # Template literals: skip if the interpolated value is wrapped in a known escape function
-    (r'\.innerHTML\s*=\s*`[^`]*\$\{(?!(?:_?escape|sanitize|encode|htmlEncode|escHtml|_citEscape|escapeHtml|DOMPurify\.sanitize|textContent)\b)[^}]+\}', "Direct innerHTML assignment with template literal", "MEDIUM"),
+    # innerHTML with a variable — flagged as INFO because the scanner can't
+    # determine if the variable was sanitized upstream; use AI analysis to triage
+    (r'\.innerHTML\s*=\s*[a-zA-Z_$][a-zA-Z0-9_$.]*(?:\s*\+|\s*;|\s*$)', "innerHTML assigned from variable (verify sanitization)", "INFO"),
+    # Template literals: skip if all interpolated values use known escape functions
+    (r'\.innerHTML\s*=\s*`[^`]*\$\{(?!(?:_?escape|sanitize|encode|htmlEncode|escHtml|_citEscape|escapeHtml|DOMPurify\.sanitize)\b)[^}]+\}', "innerHTML assigned from template literal (verify sanitization)", "INFO"),
     (r'document\.write\s*\(', "document.write usage", "MEDIUM"),
     # Only flag eval when it's a standalone call, not inside a string/comment
     (r'(?<!["\'\w])eval\s*\([^)]+\)', "eval() with argument", "HIGH"),
@@ -49,6 +50,8 @@ def scan_injection(root: str, limit: int = 500) -> list[Finding]:
         for i, line in enumerate(content.splitlines(), 1):
             stripped = line.strip()
             if stripped.startswith("#") or stripped.startswith("//"):
+                continue
+            if "vibe-audit-ignore" in line:
                 continue
             for pattern, label, severity in SQL_PATTERNS + XSS_PATTERNS + CMD_PATTERNS:
                 if re.search(pattern, line):
