@@ -4,7 +4,7 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/vipul510-web/vibe-audit?style=social)](https://github.com/vipul510-web/vibe-audit/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/vipulawl/vibe-audit?style=social)](https://github.com/vipulawl/vibe-audit/stargazers)
 
 ---
 
@@ -52,7 +52,7 @@ Issues: 8 total
 
 Then open `security-report.html`:
 
-![Dashboard showing score 34/100 with red/yellow/green category cards and expandable findings with copy-paste fix prompts](https://raw.githubusercontent.com/vipul510-web/vibe-audit/main/docs/screenshot.png)
+![Dashboard showing score 34/100 with red/yellow/green category cards and expandable findings with copy-paste fix prompts](https://raw.githubusercontent.com/vipulawl/vibe-audit/main/docs/screenshot.png)
 
 Each finding includes a **copy-paste prompt** for your AI agent:
 
@@ -81,12 +81,12 @@ Each finding includes a **copy-paste prompt** for your AI agent:
 
 **From GitHub (latest):**
 ```bash
-pip install git+https://github.com/vipul510-web/vibe-audit.git
+pip install git+https://github.com/vipulawl/vibe-audit.git
 ```
 
 **From source:**
 ```bash
-git clone https://github.com/vipul510-web/vibe-audit
+git clone https://github.com/vipulawl/vibe-audit
 cd vibe-audit
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
@@ -215,7 +215,7 @@ vibe_audit/
 ## Roadmap
 
 - [ ] PyPI package (`pip install vibe-audit`)
-- [ ] GitHub Action (`uses: vipul510-web/vibe-audit@v1`)
+- [ ] GitHub Action (`uses: vipulawl/vibe-audit@v1`)
 - [ ] Supabase RLS misconfiguration checks
 - [ ] Next.js / Vercel specific checks
 - [ ] Privacy policy / data handling checklist
